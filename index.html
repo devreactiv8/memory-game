@@ -39,16 +39,17 @@
             text-align: center;
             transition: background-color 0.3s;
             border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
         }
 
         .tile.flipped {
             background-color: #f1f0ee;
-            color: #28261e;
         }
 
         .tile.matched {
             background-color: #7c7057;
-            color: #fff;
             pointer-events: none;
         }
 
@@ -79,11 +80,21 @@
         (function() {
             const gameBoard = document.getElementById('game-board');
             const animalImages = [
-                "https://s3.us-east-1.amazonaws.com/contents.newzenler.com/45939/library/65a28cd887a30_1705151704_base-logo-transparent-background.png",
+                "https://www.example.com/images/lion.jpg", // Example animal images
+                "https://www.example.com/images/tiger.jpg",
+                "https://www.example.com/images/elephant.jpg",
+                "https://www.example.com/images/giraffe.jpg",
+                "https://www.example.com/images/penguin.jpg",
+                "https://www.example.com/images/bear.jpg",
+                "https://www.example.com/images/zebra.jpg",
+                "https://www.example.com/images/koala.jpg"
             ];
-            const animalNames = ["Lion", "Tiger", "Elephant", "Giraffe", "Penguin", "Bear", "Zebra", "Koala"];
             
-            let tiles = [...animalNames, ...animalNames, ...animalImages]; // Pairing animals and the image
+            // Add one image tile to the list
+            const imageTile = "https://s3.us-east-1.amazonaws.com/contents.newzenler.com/45939/library/65a28cd887a30_1705151704_base-logo-transparent-background.png";
+
+            // Pair up animal images with the special image tile
+            let tiles = [...animalImages, ...animalImages, imageTile];
             tiles = shuffle(tiles); // Shuffle tiles randomly
 
             let flippedTiles = [];
@@ -96,14 +107,11 @@
                 tile.dataset.index = index;
                 tile.dataset.value = value;
 
-                // If the value is an image, set the background as the image URL
-                if (value.includes("https://")) {
-                    tile.style.backgroundImage = `url(${value})`;
-                    tile.style.backgroundSize = "cover";
-                    tile.style.backgroundPosition = "center";
-                } else {
-                    tile.textContent = "";
-                }
+                // Set the tile background image to the animal or special image
+                tile.style.backgroundImage = `url(${value})`;
+                tile.style.backgroundSize = "cover";
+                tile.style.backgroundPosition = "center";
+                tile.textContent = ""; // No text, only images
 
                 tile.addEventListener('click', flipTile);
                 gameBoard.appendChild(tile);
@@ -116,14 +124,7 @@
                     return;
                 }
 
-                // If the tile contains an animal name, show the name, else, show the image
-                if (tile.dataset.value.includes("https://")) {
-                    tile.classList.add('flipped');
-                } else {
-                    tile.textContent = tile.dataset.value;
-                    tile.classList.add('flipped');
-                }
-
+                tile.classList.add('flipped');
                 flippedTiles.push(tile);
 
                 if (flippedTiles.length === 2) {
@@ -149,8 +150,6 @@
                     setTimeout(() => {
                         tile1.classList.remove('flipped');
                         tile2.classList.remove('flipped');
-                        tile1.textContent = '';
-                        tile2.textContent = '';
                         flippedTiles = [];
                     }, 1000);
                 }
