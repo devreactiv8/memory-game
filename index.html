@@ -9,23 +9,25 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
 
         /* Game board container */
         .game-board {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Default for large screens */
+            grid-template-columns: repeat(4, 1fr); /* Default: 4 columns */
             grid-gap: 10px;
             margin-top: 50px;
-            max-width: 90vw; /* Max width to ensure it scales down on smaller screens */
-            max-height: 80vh; /* Keep it within the visible screen height */
+            width: 90vw; /* Make it take up 90% of the viewport width */
+            max-width: 500px; /* Prevent the game from growing too large */
+            max-height: 90vh; /* Prevent the game from growing too large vertically */
         }
 
         /* Styles for each tile */
         .tile {
             width: 100%;
             height: 0;
-            padding-bottom: 100%; /* Maintain square aspect ratio */
+            padding-bottom: 100%; /* Square tiles with aspect ratio of 1 */
             background-color: #3498db;
             border: 2px solid #2980b9;
             display: flex;
@@ -51,15 +53,16 @@
             pointer-events: none;
         }
 
-        /* Responsive styling for smaller screens */
+        /* Responsive styling */
         @media (max-width: 768px) {
             .game-board {
-                grid-template-columns: repeat(4, 1fr); /* 4 columns on tablet and below */
+                grid-template-columns: repeat(4, 1fr); /* 4 columns for tablets */
                 max-width: 90vw;
+                max-height: 80vh;
             }
 
             .tile {
-                font-size: 20px; /* Slightly smaller font size */
+                font-size: 18px; /* Slightly smaller font for smaller screens */
             }
         }
 
@@ -67,10 +70,11 @@
             .game-board {
                 grid-template-columns: repeat(3, 1fr); /* 3 columns for mobile */
                 max-width: 90vw;
+                max-height: 70vh;
             }
 
             .tile {
-                font-size: 18px; /* Even smaller font size for mobile */
+                font-size: 16px; /* Smaller font size for mobile */
             }
         }
 
@@ -151,4 +155,5 @@
         })();
     </script>
 </div>
+
 
