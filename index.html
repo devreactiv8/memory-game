@@ -106,10 +106,8 @@
                 tile.dataset.index = index;
                 tile.dataset.value = value;
 
-                // Set the tile background image to the animal image
-                tile.style.backgroundImage = `url(${value})`;
-                tile.style.backgroundSize = "cover";
-                tile.style.backgroundPosition = "center";
+                // Set initial background to none (images hidden at first)
+                tile.style.backgroundImage = "none";
                 tile.textContent = ""; // No text, only images
 
                 tile.addEventListener('click', flipTile);
@@ -124,6 +122,7 @@
                 }
 
                 tile.classList.add('flipped');
+                tile.style.backgroundImage = `url(${tile.dataset.value})`; // Reveal image when flipped
                 flippedTiles.push(tile);
 
                 if (flippedTiles.length === 2) {
@@ -149,6 +148,8 @@
                     setTimeout(() => {
                         tile1.classList.remove('flipped');
                         tile2.classList.remove('flipped');
+                        tile1.style.backgroundImage = "none"; // Hide image again
+                        tile2.style.backgroundImage = "none"; // Hide image again
                         flippedTiles = [];
                     }, 1000);
                 }
@@ -165,4 +166,5 @@
         })();
     </script>
 </div>
+
 
