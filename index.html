@@ -1,0 +1,125 @@
+<div id="game-container">
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Game board container */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            margin-top: 50px;
+        }
+
+        /* Styles for each tile */
+        .tile {
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            border: 2px solid #2980b9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #3498db;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .tile.flipped {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .tile.matched {
+            background-color: #2ecc71;
+            color: #fff;
+            pointer-events: none;
+        }
+    </style>
+
+    <div class="game-board" id="game-board"></div>
+
+    <script>
+        // Memory Game Setup
+        (function() {
+            const gameBoard = document.getElementById('game-board');
+            const tileValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            let tiles = [...tileValues, ...tileValues]; // Pairing tiles
+            tiles = shuffle(tiles); // Shuffle tiles randomly
+
+            let flippedTiles = [];
+            let matchedTiles = 0;
+
+            // Function to create tiles and add event listeners
+            tiles.forEach((value, index) => {
+                const tile = document.createElement('div');
+                tile.classList.add('tile');
+                tile.dataset.index = index;
+                tile.dataset.value = value;
+                tile.addEventListener('click', flipTile);
+                gameBoard.appendChild(tile);
+            });
+
+            // Function to flip the tile
+            function flipTile(event) {
+                const tile = event.target;
+                if (flippedTiles.length === 2 || tile.classList.contains('flipped') || tile.classList.contains('matched')) {
+                    return;
+                }
+
+                tile.textContent = tile.dataset.value;
+                tile.classList.add('flipped');
+                flippedTiles.push(tile);
+
+                if (flippedTiles.length === 2) {
+                    checkMatch();
+                }
+            }
+
+            // Function to check if two flipped tiles match
+            function checkMatch() {
+                const [tile1, tile2] = flippedTiles;
+                if (tile1.dataset.value === tile2.dataset.value) {
+                    tile1.classList.add('matched');
+                    tile2.classList.add('matched');
+                    matchedTiles += 2;
+                    flippedTiles = [];
+
+                    // Check if the game is won
+                    if (matchedTiles === tiles.length) {
+                        setTimeout(() => alert('You won!'), 500);
+                    }
+                } else {
+                    // If not matched, flip them back after a delay
+                    setTimeout(() => {
+                        tile1.classList.remove('flipped');
+                        tile2.classList.remove('flipped');
+                        tile1.textContent = '';
+                        tile2.textContent = '';
+                        flippedTiles = [];
+                    }, 1000);
+                }
+            }
+
+            // Shuffle function
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        })();
+    </script>
+</div>
