@@ -14,15 +14,18 @@
         /* Game board container */
         .game-board {
             display: grid;
-            grid-template-columns: repeat(4, 100px);
+            grid-template-columns: repeat(4, 1fr); /* Default for large screens */
             grid-gap: 10px;
             margin-top: 50px;
+            max-width: 90vw; /* Max width to ensure it scales down on smaller screens */
+            max-height: 80vh; /* Keep it within the visible screen height */
         }
 
         /* Styles for each tile */
         .tile {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%; /* Maintain square aspect ratio */
             background-color: #3498db;
             border: 2px solid #2980b9;
             display: flex;
@@ -34,6 +37,7 @@
             cursor: pointer;
             border-radius: 8px;
             transition: background-color 0.3s;
+            position: relative;
         }
 
         .tile.flipped {
@@ -46,6 +50,30 @@
             color: #fff;
             pointer-events: none;
         }
+
+        /* Responsive styling for smaller screens */
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(4, 1fr); /* 4 columns on tablet and below */
+                max-width: 90vw;
+            }
+
+            .tile {
+                font-size: 20px; /* Slightly smaller font size */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-board {
+                grid-template-columns: repeat(3, 1fr); /* 3 columns for mobile */
+                max-width: 90vw;
+            }
+
+            .tile {
+                font-size: 18px; /* Even smaller font size for mobile */
+            }
+        }
+
     </style>
 
     <div class="game-board" id="game-board"></div>
@@ -123,3 +151,4 @@
         })();
     </script>
 </div>
+
