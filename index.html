@@ -79,22 +79,24 @@
         // Memory Game Setup
         (function() {
             const gameBoard = document.getElementById('game-board');
+            
+            // Animal image URLs
             const animalImages = [
-                "https://www.example.com/images/lion.jpg", // Example animal images
-                "https://www.example.com/images/tiger.jpg",
-                "https://www.example.com/images/elephant.jpg",
-                "https://www.example.com/images/giraffe.jpg",
-                "https://www.example.com/images/penguin.jpg",
-                "https://www.example.com/images/bear.jpg",
-                "https://www.example.com/images/zebra.jpg",
-                "https://www.example.com/images/koala.jpg"
+                "https://www.nationalgeographic.com/content/dam/animals/pictures/mammals/tiger/tiger_adult_felidae_640px.jpg", // Tiger
+                "https://upload.wikimedia.org/wikipedia/commons/0/09/Lion_in_Ranthambhore.jpg", // Lion
+                "https://upload.wikimedia.org/wikipedia/commons/e/ee/Asian_elephant_in_West_Bengal_%28cropped%29.jpg", // Elephant
+                "https://upload.wikimedia.org/wikipedia/commons/c/ca/Giraffe_in_Masai_Mara.jpg", // Giraffe
+                "https://upload.wikimedia.org/wikipedia/commons/e/e8/Penguin.jpg", // Penguin
+                "https://upload.wikimedia.org/wikipedia/commons/0/0f/A_Grizzly_Bear.jpg", // Bear
+                "https://upload.wikimedia.org/wikipedia/commons/d/d1/Zebra_Zoo.jpg", // Zebra
+                "https://upload.wikimedia.org/wikipedia/commons/6/6b/Koala_Clancy.jpg"  // Koala
             ];
             
-            // Add one image tile to the list
-            const imageTile = "https://s3.us-east-1.amazonaws.com/contents.newzenler.com/45939/library/65a28cd887a30_1705151704_base-logo-transparent-background.png";
+            // Add one logo image tile to the list
+            const logoTile = "https://s3.us-east-1.amazonaws.com/contents.newzenler.com/45939/library/65a28cd887a30_1705151704_base-logo-transparent-background.png";
 
-            // Pair up animal images with the special image tile
-            let tiles = [...animalImages, ...animalImages, imageTile];
+            // Pair up animal images with the logo image
+            let tiles = [...animalImages, ...animalImages, logoTile, logoTile];
             tiles = shuffle(tiles); // Shuffle tiles randomly
 
             let flippedTiles = [];
@@ -107,7 +109,7 @@
                 tile.dataset.index = index;
                 tile.dataset.value = value;
 
-                // Set the tile background image to the animal or special image
+                // Set the tile background image to the animal or logo image
                 tile.style.backgroundImage = `url(${value})`;
                 tile.style.backgroundSize = "cover";
                 tile.style.backgroundPosition = "center";
