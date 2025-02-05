@@ -1,170 +1,331 @@
-<div id="game-container">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Animal Memory Match</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Global styles */
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --brand-brown: #7c7057;
+            --brand-white: #f1f0ee;
+            --brand-black: #28261e;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--brand-white);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f1f0ee;
-            overflow: hidden;
+            min-height: 100vh;
+            color: var(--brand-black);
         }
 
-        /* Game board container */
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .game-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--brand-black);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         .game-board {
             display: grid;
-            grid-gap: 10px;
             grid-template-columns: repeat(4, 1fr);
-            max-width: 90%;
-            max-height: 90%;
-            width: 500px;
-            height: 500px;
-            background-color: #28261e;
-            padding: 10px;
-            border-radius: 8px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .tile {
-            background-color: #7c7057;
-            border: 2px solid #28261e;
+            aspect-ratio: 1;
+            background-color: var(--brand-brown);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #f1f0ee;
-            font-size: 18px;
-            cursor: pointer;
-            text-align: center;
-            transition: background-color 0.3s;
-            border-radius: 8px;
             background-size: cover;
             background-position: center;
-            position: relative;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
         }
 
         .tile.flipped {
-            background-color: #f1f0ee;
+            background-color: var(--brand-white);
+            border: 2px solid var(--brand-brown);
         }
 
         .tile.matched {
-            background-color: #7c7057;
+            background-color: rgba(76, 175, 80, 0.7);
             pointer-events: none;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .game-board {
-                width: 80vw; /* 80% of the viewport width */
-                height: 80vw; /* Square aspect ratio */
-                max-width: 400px;
-                max-height: 400px;
-            }
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: 400;
         }
 
-        @media (max-width: 480px) {
-            .game-board {
-                width: 70vw; /* 70% of the viewport width */
-                height: 70vw; /* Square aspect ratio */
-                max-width: 300px;
-                max-height: 300px;
-            }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p, .modal-content ul {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .modal-btn {
+            background-color: var(--brand-brown);
+            color: var(--brand-white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.8;
+        }
+
+        .result-modal {
+            text-align: center;
+        }
+
+        .result-modal h2 {
+            color: var(--brand-black);
+            margin-bottom: 20px;
+        }
+
+        #restart-btn {
+            background-color: var(--brand-brown);
+            color: var(--brand-white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
         }
     </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Match the Same Tiles to Win!</h1>
+        </div>
+        <div class="game-stats">
+            <span>Wrong Matches: <span id="wrong-matches">0</span></span>
+            <span>Time: <span id="game-timer">00:00</span></span>
+        </div>
+        <div class="game-board" id="game-board"></div>
+    </div>
 
-    <div class="game-board" id="game-board"></div>
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content">
+            <h2>How to Play</h2>
+            <p>Welcome to the Memory Game!</p>
+            <ul>
+                <li>Click on tiles to reveal animal images</li>
+                <li>Match pairs of identical animals</li>
+                <li>Try to complete the game with the least wrong matches</li>
+            </ul>
+            <button class="modal-btn" id="start-game-btn">Start Game</button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="modal" style="display:none;">
+        <div class="modal-content result-modal">
+            <h2>Your Score: <span id="final-score">0</span></h2>
+            <p>Total Wrong Matches: <span id="final-wrong-matches">0</span></p>
+            <p>Time Taken: <span id="final-time">00:00</span></p>
+            <button id="read-more-btn" class="modal-btn">What does this mean?</button>
+            <button id="restart-btn" class="modal-btn">Play Again</button>
+        </div>
+    </div>
 
     <script>
-        // Memory Game Setup
-        (function() {
+        document.addEventListener('DOMContentLoaded', () => {
             const gameBoard = document.getElementById('game-board');
-            
-            // Animal image URLs
+            const tutorialModal = document.getElementById('tutorial-modal');
+            const startGameBtn = document.getElementById('start-game-btn');
+            const resultModal = document.getElementById('result-modal');
+            const restartBtn = document.getElementById('restart-btn');
+            const readMoreBtn = document.getElementById('read-more-btn');
+            const wrongMatchesDisplay = document.getElementById('wrong-matches');
+            const timerDisplay = document.getElementById('game-timer');
+            const finalScoreDisplay = document.getElementById('final-score');
+            const finalWrongMatchesDisplay = document.getElementById('final-wrong-matches');
+            const finalTimeDisplay = document.getElementById('final-time');
+
             const animalImages = [
-                "https://files.worldwildlife.org/wwfcmsprod/images/Tiger_resting_Bandhavgarh_National_Park_India/hero_small/6aofsvaglm_Medium_WW226365.jpg", // Tiger
-                "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTA4L3Jhd3BpeGVsX29mZmljZV8yX3Bob3RvX29mX2FfbGlvbl9pc29sYXRlZF9vbl9jb2xvcl9iYWNrZ3JvdW5kXzJhNzgwMjM1LWRlYTgtNDMyOS04OWVjLTY3ZWMwNjcxZDhiMV8xLmpwZw.jpg", // Lion
-                "https://cdn.britannica.com/02/152302-050-1A984FCB/African-savanna-elephant.jpg", // Elephant
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtlc0dpgyaC-_uvD-EH3mZ1Q5Ai95V3SJcw&s", // Giraffe
-                "https://cdn.britannica.com/77/81277-050-2A6A35B2/Adelie-penguin.jpg", // Penguin
-                "https://t3.ftcdn.net/jpg/00/16/81/88/360_F_16818804_3zqaNN9Bg4Pojl8iiiRiDvP67P6OoYYi.jpg", // Bear
-                "https://s3.us-east-1.amazonaws.com/contents.newzenler.com/45939/library/65a28cd887a30_1705151704_base-logo-transparent-background.png", // Zebra
-                "https://www.wwf.org.uk/sites/default/files/styles/max_650x650/public/2022-05/_WW236934.jpg?itok=JlG-1l9V"  // Koala
+                "https://files.worldwildlife.org/wwfcmsprod/images/Tiger_resting_Bandhavgarh_National_Park_India/hero_small/6aofsvaglm_Medium_WW226365.jpg",
+                "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTA4L3Jhd3BpeGVsX29mZmljZV8yX3Bob3RvX29mX2FfbGlvbl9pc29sYXRlZF9vbl9jb2xvcl9iYWNrZ3JvdW5kXzJhNzgwMjM1LWRlYTgtNDMyOS04OWVjLTY3ZWMwNjcxZDhiMV8xLmpwZw.jpg",
+                "https://cdn.britannica.com/02/152302-050-1A984FCB/African-savanna-elephant.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtlc0dpgyaC-_uvD-EH3mZ1Q5Ai95V3SJcw&s",
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/2010-kodiak-bear-1.jpg/1200px-2010-kodiak-bear-1.jpg",
+                "https://www.wwf.org.uk/sites/default/files/styles/max_650x650/public/2022-05/_WW236934.jpg?itok=JlG-1l9V",
+                "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L3Vwd2s2MTc3Nzk0MS13aWtpbWVkaWEtaW1hZ2Uta293YnN1MHYuanBn.jpg",
+                "https://s3.us-east-1.amazonaws.com/contents.newzenler.com/45939/library/65a28cd887a30_1705151704_base-logo-transparent-background.png"
             ];
 
-            // Double the animal images for pairs
-            let tiles = [...animalImages, ...animalImages];
-            tiles = shuffle(tiles); // Shuffle tiles randomly
+            let startTime, gameTimer, matchedPairs = [], flippedTiles = [];
+            let wrongMatches = 0;
 
-            let flippedTiles = [];
-            let matchedTiles = 0;
+            function shuffleArray(array) {
+                return array.sort(() => Math.random() - 0.5);
+            }
 
-            // Function to create tiles and add event listeners
-            tiles.forEach((value, index) => {
-                const tile = document.createElement('div');
-                tile.classList.add('tile');
-                tile.dataset.index = index;
-                tile.dataset.value = value;
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
 
-                // Set initial background to none (images hidden at first)
-                tile.style.backgroundImage = "none";
-                tile.textContent = ""; // No text, only images
+            function startTimer() {
+                startTime = Date.now();
+                gameTimer = setInterval(() => {
+                    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                    timerDisplay.textContent = formatTime(elapsedSeconds);
+                }, 1000);
+            }
 
-                tile.addEventListener('click', flipTile);
-                gameBoard.appendChild(tile);
+            function createGameBoard() {
+                const images = shuffleArray([...animalImages, ...animalImages]);
+                gameBoard.innerHTML = '';
+                images.forEach((image) => {
+                    const tile = document.createElement('div');
+                    tile.classList.add('tile');
+                    tile.dataset.image = image;
+                    tile.addEventListener('click', () => flipTile(tile));
+                    gameBoard.appendChild(tile);
+                });
+            }
+
+            function flipTile(tile) {
+                if (flippedTiles.length < 2 && !tile.classList.contains('flipped') && !tile.classList.contains('matched')) {
+                    tile.classList.add('flipped');
+                    tile.style.backgroundImage = `url('${tile.dataset.image}')`;
+                    flippedTiles.push(tile);
+
+                    if (flippedTiles.length === 2) {
+                        setTimeout(checkMatch, 1000);
+                    }
+                }
+            }
+
+            function checkMatch() {
+                const [firstTile, secondTile] = flippedTiles;
+                if (firstTile.dataset.image === secondTile.dataset.image) {
+                    firstTile.classList.add('matched');
+                    secondTile.classList.add('matched');
+                    matchedPairs.push(firstTile.dataset.image);
+                } else {
+                    firstTile.classList.remove('flipped');
+                    secondTile.classList.remove('flipped');
+                    firstTile.style.backgroundImage = '';
+                    secondTile.style.backgroundImage = '';
+                    wrongMatches++;
+                    wrongMatchesDisplay.textContent = wrongMatches;
+                }
+                flippedTiles = [];
+
+                if (matchedPairs.length === animalImages.length) {
+                    endGame();
+                }
+            }
+
+            function endGame() {
+                clearInterval(gameTimer);
+                const timeTaken = (Date.now() - startTime) / 1000;
+                const score = Math.max(0, 100 - Math.floor(timeTaken));
+                
+                finalScoreDisplay.textContent = score;
+                finalWrongMatchesDisplay.textContent = wrongMatches;
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                finalTimeDisplay.textContent = formatTime(elapsedSeconds);
+                
+                const link = score > 65 ? 'https://www.iamgr8.co.uk/results-3' : score > 60 ? 'https://www.iamgr8.co.uk/results-2' : 'https://www.iamgr8.co.uk/results-1';
+                
+                readMoreBtn.onclick = () => window.open(link, '_blank');
+                
+                gameBoard.style.display = 'none';
+                resultModal.style.display = 'flex';
+            }
+
+            function resetGame() {
+                gameBoard.style.display = 'grid';
+                matchedPairs = [];
+                flippedTiles = [];
+                wrongMatches = 0;
+                wrongMatchesDisplay.textContent = '0';
+                timerDisplay.textContent = '00:00';
+                resultModal.style.display = 'none';
+                createGameBoard();
+                startTimer();
+            }
+
+            // Event Listeners
+            startGameBtn.addEventListener('click', () => {
+                tutorialModal.style.display = 'none';
+                createGameBoard();
+                startTimer();
             });
 
-            // Function to flip the tile
-            function flipTile(event) {
-                const tile = event.target;
-                if (flippedTiles.length === 2 || tile.classList.contains('flipped') || tile.classList.contains('matched')) {
-                    return;
-                }
+            restartBtn.addEventListener('click', resetGame);
 
-                tile.classList.add('flipped');
-                tile.style.backgroundImage = `url(${tile.dataset.value})`; // Reveal image when flipped
-                flippedTiles.push(tile);
-
-                if (flippedTiles.length === 2) {
-                    checkMatch();
-                }
-            }
-
-            // Function to check if two flipped tiles match
-            function checkMatch() {
-                const [tile1, tile2] = flippedTiles;
-                if (tile1.dataset.value === tile2.dataset.value) {
-                    tile1.classList.add('matched');
-                    tile2.classList.add('matched');
-                    matchedTiles += 2;
-                    flippedTiles = [];
-
-                    // Check if the game is won
-                    if (matchedTiles === tiles.length) {
-                        setTimeout(() => alert('You won!'), 500);
-                    }
-                } else {
-                    // If not matched, flip them back after a delay
-                    setTimeout(() => {
-                        tile1.classList.remove('flipped');
-                        tile2.classList.remove('flipped');
-                        tile1.style.backgroundImage = "none"; // Hide image again
-                        tile2.style.backgroundImage = "none"; // Hide image again
-                        flippedTiles = [];
-                    }, 1000);
-                }
-            }
-
-            // Shuffle function
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-        })();
+            // Show tutorial on page load
+            tutorialModal.style.display = 'flex';
+        });
     </script>
-</div>
-
-
+</body>
+</html>
